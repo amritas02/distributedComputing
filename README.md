@@ -31,11 +31,11 @@ Steps to run the project
 
 
 In Main machine
-1) java -classpath jblas-1.2.4.jar:. UnitHub localhost 9992
+1) java -classpath lib/jblas-1.2.4.jar:classes UnitHub localhost 9992
 
 in volunteer machine
 1) rmiregistry 9092 &
-2) java -classpath jblas-1.2.4.jar:. StartServer 9092 localhost 9992
+2) java -classpath lib/jblas-1.2.4.jar:classes StartServer 9092 localhost 9992
 
 todo
 1) complete distributedAdd method in UnitHub
