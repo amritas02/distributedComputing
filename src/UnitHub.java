@@ -42,35 +42,135 @@ public class UnitHub implements IRegister {
       System.out.println(getRegisterSize()+" registered units:\n"+getRegister());
     }
 
-    public DoubleMatrix distributedAdd(DoubleMatrix A, DoubleMatrix B) throws Exception {
+   
+    
+    public DoubleMatrix distributedCalc(DoubleMatrix A, DoubleMatrix B, char c) throws Exception 
+{
+
+	//char can be +, -, *
 
       /*
         use getRegisterSize() to find number of volunteers which is the
             maximum number of parts we can break the problem into
-
         use getRegister() to get a List of volunteer addresses
-
         todo - break the problem into maximum number possible given operand size
               but less than getRegisterSize()
               note: add each sub problem into l and executor.invokeAll(l); will return
                     list of Future containing answer to each sub problems
       */
+	  
       DoubleMatrix ans;
       ExecutorService executor = Executors.newCachedThreadPool();
       List<Unit> l = new ArrayList<>();
-      l.add(new Unit(A, B, '+', getRegister().get(0) ));
+	  
+	  int k = getRegisterSize(); 
+	  int count = 0; 
+	  
+	  if( A.getColumns()!= B.getColumns() || A.getRows()! = B.getRows())
+	  {
+	  System.out.println(" Please specify two matrices with equal dimensions");
+	  System.exit(0); 
+	  }
+	  
+	  int p = A.getRows(); 
+	  int q = A.getColumns(); 
+	  
+	  for(int i = 0 ; i < p; i++)
+	  {
+	  
+		for(int j = 0; i < q; j++)
+		{
+		int t1 = A.get(i,j); 
+		int t2 = B.get(i,j);
+		
+		l.add(new Unit(t1, t2, c, getRegister().get(count%k)); 
+		count++; 
+		}
+	}
+	
+	  
+	  
+	  
+	  
+      //l.add(new Unit(A, B, '+', getRegister().get(0) ));
       List <Future<DoubleMatrix> > results = executor.invokeAll(l);
       executor.shutdown();
+	  
+	  double temp[] = new double[p*q]; 
+	  
+	  for(int i =0 ; i< p*q ; i++)
+	  {
+	  temp[i] = results.get(i).get; 
+	  }
+	  
+	  ans = new DoubleMatrix(p,q,temp); 
+	  
 
       /*
       for (Future<DoubleMatrix> result : results) {
          System.out.println(result.get());
       }
       */
-      ans = results.get(0).get();
+      //ans = results.get(0).get();
       return ans;
     
     }
+	
+	
+	public DoubleMatrix MatrixMul(DoubleMatrix A, DoubleMatrix B) throws Exception 
+	{
+	
+	DoubleMatrix ans;
+      ExecutorService executor = Executors.newCachedThreadPool();
+      List<Unit> l = new ArrayList<>();
+	
+	int k = getRegisterSize(); 
+	  int count = 0; 
+	  
+	  if( A.getColumns()!= B.getRows())
+	  {
+	  System.out.println(" Please specify two matrices A of dimension m x n and B of dimension n x r");
+	  System.exit(0); 
+	  }
+	
+	DoubleMatrix temp1, temp2; 
+	
+	for(int i = 0; i< A.getRows(); i++)
+	{
+	
+	temp1 = A.getRows(i); 
+	
+	for(int j = 0; j< B.getColumns(); j++)
+	{
+	
+	temp2 = B.getColumn(j); 
+	l.add(new Unit(temp1, temp2, '**', getRegister().get(count%k)); 
+	count++; 	
+	}
+			
+	
+	}
+	
+	List <Future<DoubleMatrix> > results = executor.invokeAll(l);
+      executor.shutdown();
+	  
+	  double temp[] = new double[count]; 
+	  DoubleMatrix temp3;
+	  
+	  for(int i =0 ; i< count ; i++)
+	  {
+	  temp3 = results.get(i).get; 
+	  temp[i] = temp3.get(0,0); 
+	  	  
+	  }
+	  
+	  ans = new DoubleMatrix(A.getRows(),B.getColumns(),temp); 
+	
+	
+	
+	}
+          
+          
 
     public static void main(String[] args) throws Exception {
         UnitHub hub = new UnitHub();
