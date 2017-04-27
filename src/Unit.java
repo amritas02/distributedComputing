@@ -43,9 +43,9 @@ class Unit implements Callable<DoubleMatrix> {
           case '*':
             ans = iuc.mul(op1, op2);
             break;
-          case '**' :
-            ans = iuc.mmul(op1, op2);                
-            break;     
+          case 'M' :
+            ans = iuc.mmul(op1, op2);
+            break;
           default:
             throw new Exception("operator "+op+" not found");
         }

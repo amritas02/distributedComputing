@@ -71,9 +71,11 @@ public class StartServer
 			UnitCompute uc = new UnitCompute();
 
 			System.out.println("\tcalling rebind");
+			LocateRegistry.createRegistry(rmiRegistryPort);
 			Naming.rebind("rmi://localhost:"+rmiRegistryPort+"/UnitCompute",uc);
 			System.out.println("server ready");
 			signIn();
+			System.out.println(">>Enter when you want to quit volunteering");
 			Scanner sc = new Scanner(System.in);
 			sc.nextLine();
 		}
