@@ -59,7 +59,7 @@ public class UnitHub implements IRegister {
                     list of Future containing answer to each sub problems
       */
 
-      DoubleMatrix ans;
+      DoubleMatrix ans = new DoubleMatrix();
       ExecutorService executor = Executors.newCachedThreadPool();
       List<Unit> l = new ArrayList<>();
 
@@ -74,9 +74,44 @@ public class UnitHub implements IRegister {
 
 	  int p = A.getRows();
 	  int q = A.getColumns();
+	    
+	    //load balancing 
+	   int ar[] = new int[k];  
+	   int load = (p*q)/k; 
+	   int exload = (p*q)%k; 
+	   
+	    for(int i = 0; i<k ; i++)
+	    {
+		    ar[i] = load;
+		    if(exload != 0)
+		    {
+			ar[i] = ar[i] + 1;
+		    	exload--;
+		    }
+	    }
+	    
+	    //converting to row vector
+	    DoubleMatrix P = A.reshape(0, p*q);
+	    DoubleMatrix Q = B.reshape(0, p*q);
+	    
+	    DoubleMatrix T1 = new DoubleMatrix(); 
+	    DoubleMatrix T2 = new DoubleMatrix(); 
+	    int count = 0; 
+	    
+	    for(int i=0; i<k ; i++)
+	    {
+		    
+		    T1 = P.getColumnRange(0, count, ar[k]-1); 
+		    T2 = Q.getColumnRange(0, count, ar[k]-1); 
+		    count = count + ar[k]; 
+		    l.add(new Unit(T1, T2, c, getRegister().get(k)));
+	    
+	    }
+	    
+	    
 
-    DoubleMatrix T1 = DoubleMatrix.zeros(1,1), T2 = DoubleMatrix.zeros(1,1);
-	  for(int i = 0 ; i < p; i++)
+    //DoubleMatrix T1 = DoubleMatrix.zeros(1,1), T2 = DoubleMatrix.zeros(1,1);
+	 /* for(int i = 0 ; i < p; i++)
 	  {
 
 		for(int j = 0; j < q; j++)
@@ -88,7 +123,7 @@ public class UnitHub implements IRegister {
 		l.add(new Unit(T1, T2, c, getRegister().get(count%k)));
 		count++;
 		}
-	}
+	}*/
 
 
 
@@ -97,15 +132,33 @@ public class UnitHub implements IRegister {
       //l.add(new Unit(A, B, '+', getRegister().get(0) ));
       List <Future<DoubleMatrix> > results = executor.invokeAll(l);
       executor.shutdown();
+	    
+	    DoubleMatrix temp = new DoubleMatrix(); 
+	    for(int i = 0; i<k; i++)
+	    {
+		    temp = results.get(k).get(); 
+		    if(i = 0)
+		    {
+			    ans = temp;
+		    }
+		    else
+		    {
+			    ans = concatHorizontally(ans, temp); 
+		    }
+	    }
+	    
+	    ans = ans.reshape(p,q); 
+	    
+	    
 
-	  double temp[] = new double[p*q];
+	  /*double temp[] = new double[p*q];
 
 	  for(int i = 0 ; i< p*q ; i++)
 	  {
 	  temp[i] = results.get(i).get().get(0,0);
 	  }
 
-	  ans = new DoubleMatrix(p,q,temp);
+	  ans = new DoubleMatrix(p,q,temp);*/
 
 
       /*
